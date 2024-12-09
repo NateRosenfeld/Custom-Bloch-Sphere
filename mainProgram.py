@@ -28,10 +28,9 @@ def plotBlochSphere(theta, phi, ax):
     ax.clear()
     ax.set_aspect('equal')
 
-    # ... (rest of the existing plotBlochSphere code) ...
-
-    # Adjust title position
-    ax.set_title("Bloch Sphere", pad=20)
+    # Set background color
+    ax.set_facecolor('black')
+    ax.figure.set_facecolor('black')
 
     # Define the Bloch sphere surface
     u = np.linspace(0, 2 * np.pi, 100)
@@ -40,59 +39,67 @@ def plotBlochSphere(theta, phi, ax):
     ySphere = np.outer(np.sin(u), np.sin(v))
     zSphere = np.outer(np.ones_like(u), np.cos(v))
 
-    # Plot the sphere
-    ax.plot_surface(xSphere, ySphere, zSphere, rstride=4, cstride=4, color='b', alpha=0.5)
+    # Plot the sphere with white color and grid
+    ax.plot_surface(xSphere, ySphere, zSphere,
+                    rstride=4, cstride=4,
+                    color='white',
+                    alpha=0.1,
+                    linewidth=0.5)
 
-    # Calculate the vector direction (convert spherical to Cartesian)
+    # Calculate vector direction
     x = np.sin(theta) * np.cos(phi)
     y = np.sin(theta) * np.sin(phi)
     z = np.cos(theta)
 
-    # Plot the state vector
-    ax.quiver(0, 0, 0, x, y, z, length=1, normalize=True, color='r')
+    # Plot state vector in bright red
+    ax.quiver(0, 0, 0, x, y, z,
+              length=1, normalize=True,
+              color='#ff3366',
+              linewidth=2,
+              arrow_length_ratio=0.15)
 
-    # X-axis
-    ax.quiver(0, 0, 0, 1.1, 0, 0, color='g', arrow_length_ratio=0.1)
-    ax.quiver(0, 0, 0, -1.1, 0, 0, color='g', arrow_length_ratio=0.1)
-    ax.text(1.2, 0, 0, "X", color='g', fontsize=12, ha='center')
-    ax.text(-1.2, 0, 0, "-X", color='g', fontsize=12, ha='center')
+    # Axes with modern colors
+    ax.quiver(0, 0, 0, 1.1, 0, 0, color='#00ffff', arrow_length_ratio=0.1)
+    ax.quiver(0, 0, 0, -1.1, 0, 0, color='#00ffff', arrow_length_ratio=0.1)
+    ax.quiver(0, 0, 0, 0, 1.1, 0, color='#00ff99', arrow_length_ratio=0.1)
+    ax.quiver(0, 0, 0, 0, -1.1, 0, color='#00ff99', arrow_length_ratio=0.1)
+    ax.quiver(0, 0, 0, 0, 0, 1.1, color='#ff66cc', arrow_length_ratio=0.1)
+    ax.quiver(0, 0, 0, 0, 0, -1.1, color='#ff66cc', arrow_length_ratio=0.1)
 
-    # Y-axis
-    ax.quiver(0, 0, 0, 0, 1.1, 0, color='orange', arrow_length_ratio=0.1)
-    ax.quiver(0, 0, 0, 0, -1.1, 0, color='orange', arrow_length_ratio=0.1)
-    ax.text(0, 1.2, 0, "Y", color='orange', fontsize=12, ha='center')
-    ax.text(0, -1.2, 0, "-Y", color='orange', fontsize=12, ha='center')
+    # Modern font for labels
+    font_props = {'color': 'white', 'fontname': 'Segoe UI', 'fontsize': 12}
+    ax.text(1.2, 0, 0, "X", ha='center', **font_props)
+    ax.text(-1.2, 0, 0, "-X", ha='center', **font_props)
+    ax.text(0, 1.2, 0, "Y", ha='center', **font_props)
+    ax.text(0, -1.2, 0, "-Y", ha='center', **font_props)
+    ax.text(0, 0, 1.2, "|1⟩", ha='center', **font_props)
+    ax.text(0, 0, -1.2, "|0⟩", ha='center', **font_props)
 
-    # Z-axis (Probability axis) with Dirac notation
-    axis_length = 1.1  # Extend slightly beyond the sphere
-    ax.quiver(0, 0, 0, 0, 0, axis_length, color='purple', arrow_length_ratio=0.1)
-    ax.text(0, 0, axis_length + 0.1, "|1⟩", color='purple', fontsize=12, ha='center')
-    ax.quiver(0, 0, 0, 0, 0, -axis_length, color='purple', arrow_length_ratio=0.1)
-    ax.text(0, 0, -axis_length - 0.1, "|0⟩", color='purple', fontsize=12, ha='center')
-
-    # Remove external gridlines and ticks
+    # Remove grid and set black background
     ax.grid(False)
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_zticks([])
 
     # Set limits and title
-    ax.set_xlim([-1, 1])
-    ax.set_ylim([-1, 1])
-    ax.set_zlim([-1, 1])
-    ax.set_title("Bloch Sphere")
+    ax.set_xlim([-1.2, 1.2])
+    ax.set_ylim([-1.2, 1.2])
+    ax.set_zlim([-1.2, 1.2])
+    ax.set_title("Bloch Sphere", color='white', pad=20, fontname='Segoe UI', fontsize=14)
 
 
 # Function to animate the vector evolution
 def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
-    fig = plt.figure(figsize=(10, 8))  # Made figure wider to accommodate text
+    fig = plt.figure(figsize=(10, 8))
+    fig.patch.set_facecolor('black')  # Set figure background to black
 
     # Create main Bloch sphere plot
-    ax = fig.add_subplot(121, projection='3d')  # 1x2 grid, first position
+    ax = fig.add_subplot(121, projection='3d')
 
     # Create text area for equations
-    text_ax = fig.add_subplot(122)  # 1x2 grid, second position
-    text_ax.axis('off')  # Hide axes
+    text_ax = fig.add_subplot(122)
+    text_ax.axis('off')
+    text_ax.set_facecolor('black')  # Set text area background to black
 
     # Generate intermediate angles for animation
     thetaValues = np.linspace(startTheta, endTheta, steps)
@@ -103,10 +110,17 @@ def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
     init_azim = 45
     ax.view_init(elev=init_elev, azim=init_azim)
 
-    # Initialize text elements
-    state_text = text_ax.text(0.1, 0.7, '', fontsize=12)
-    components_text = text_ax.text(0.1, 0.5, '', fontsize=12)
-    angles_text = text_ax.text(0.1, 0.3, '', fontsize=12)
+    # Initialize text elements with modern styling
+    text_props = {
+        'color': 'white',
+        'fontname': 'Segoe UI',
+        'fontsize': 12,
+        'fontweight': 'bold'
+    }
+
+    state_text = text_ax.text(0.1, 0.8, '', **text_props)
+    components_text = text_ax.text(0.1, 0.5, '', **text_props)
+    angles_text = text_ax.text(0.1, 0.2, '', **text_props)
 
     def update(frame):
         elev = ax.elev
@@ -123,8 +137,8 @@ def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
         alpha = np.cos(theta / 2)
         beta = np.exp(1j * phi) * np.sin(theta / 2)
 
-        # Update equations
-        state_text.set_text(f"State Vector |ψ⟩:\n|ψ⟩ = α|0⟩ + β|1⟩")
+        # Update equations with modern formatting
+        state_text.set_text("Quantum State |ψ⟩:\n|ψ⟩ = α|0⟩ + β|1⟩")
 
         components_text.set_text(
             f"Components:\n"
@@ -135,7 +149,7 @@ def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
         )
 
         angles_text.set_text(
-            f"Angles:\n"
+            f"Spherical Coordinates:\n"
             f"θ = {theta:.3f} rad = {np.degrees(theta):.1f}°\n"
             f"φ = {phi:.3f} rad = {np.degrees(phi):.1f}°"
         )
@@ -152,9 +166,17 @@ def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
         blit=False
     )
 
-    # Add stop button
+    # Add stop button with modern styling
+    # Add stop button with modern styling
     stop_ax = plt.axes([0.81, 0.05, 0.1, 0.075])
-    stop_button = plt.Button(stop_ax, 'Stop')
+    stop_button = plt.Button(
+        stop_ax, 'Stop',
+        color='black',
+        hovercolor='#333333'
+    )
+
+    # Set the text color separately
+    stop_button.label.set_color('white')
 
     def stop_animation(event):
         anim.event_source.stop()
@@ -254,23 +276,51 @@ def get_user_input():
 
 def create_input_window():
     input_window = tk.Tk()
-    input_window.title("Bloch Sphere Coordinates")
+    input_window.title("Quantum State Visualizer")
 
-    # Create and pack a frame for better organization
-    frame = ttk.Frame(input_window, padding="10")
+    # Configure style
+    style = ttk.Style()
+    style.configure('Modern.TFrame', background='black')
+    style.configure('Modern.TLabel',
+                    background='black',
+                    foreground='white',
+                    font=('Segoe UI', 10))
+    style.configure('Modern.TButton',
+                    font=('Segoe UI', 10),
+                    padding=10)
+    style.configure('Modern.TEntry',
+                    font=('Segoe UI', 10))
+
+    # Set window background
+    input_window.configure(bg='black')
+
+    # Create and pack a frame
+    frame = ttk.Frame(input_window, padding="20", style='Modern.TFrame')
     frame.pack(fill=tk.BOTH, expand=True)
 
-    # Add information text
+    # Add title
+    title_label = ttk.Label(frame,
+                            text="Quantum State Visualizer",
+                            font=('Segoe UI', 16, 'bold'),
+                            style='Modern.TLabel')
+    title_label.pack(pady=(0, 20))
+
+    # Add information text with modern formatting
     info_text = """
-    Common points (in radians):
-    |0⟩ state: theta = 0, phi = 0
-    |1⟩ state: theta = π (3.14159), phi = 0
-    |+⟩ state: theta = π/2 (1.57079), phi = 0
-    |-⟩ state: theta = π/2 (1.57079), phi = π (3.14159)
-    |+i⟩ state: theta = π/2 (1.57079), phi = π/2 (1.57079)
-    |-i⟩ state: theta = π/2 (1.57079), phi = 3π/2 (4.71238)
+    Common Quantum States (in radians):
+    |0⟩ : θ = 0,      φ = 0
+    |1⟩ : θ = π,      φ = 0
+    |+⟩ : θ = π/2,    φ = 0
+    |-⟩ : θ = π/2,    φ = π
+    |+i⟩: θ = π/2,    φ = π/2
+    |-i⟩: θ = π/2,    φ = 3π/2
     """
-    ttk.Label(frame, text=info_text, justify=tk.LEFT).pack(pady=10)
+    ttk.Label(frame, text=info_text,
+              justify=tk.LEFT,
+              style='Modern.TLabel',
+              font=('Consolas', 10)).pack(pady=10)
+
+    # ... rest of the UI code remains the same ...
 
     # Create variables to store the input values
     start_theta_var = tk.StringVar()
