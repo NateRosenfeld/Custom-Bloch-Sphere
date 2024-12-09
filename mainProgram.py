@@ -32,6 +32,14 @@ def plotBlochSphere(theta, phi, ax):
     ax.set_facecolor('black')
     ax.figure.set_facecolor('black')
 
+    # Remove panes
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor('none')
+    ax.yaxis.pane.set_edgecolor('none')
+    ax.zaxis.pane.set_edgecolor('none')
+
     # Define the Bloch sphere surface
     u = np.linspace(0, 2 * np.pi, 100)
     v = np.linspace(0, np.pi, 100)
@@ -68,12 +76,12 @@ def plotBlochSphere(theta, phi, ax):
 
     # Modern font for labels
     font_props = {'color': 'white', 'fontname': 'Segoe UI', 'fontsize': 12}
-    ax.text(1.2, 0, 0, "X", ha='center', **font_props)
-    ax.text(-1.2, 0, 0, "-X", ha='center', **font_props)
-    ax.text(0, 1.2, 0, "Y", ha='center', **font_props)
-    ax.text(0, -1.2, 0, "-Y", ha='center', **font_props)
-    ax.text(0, 0, 1.2, "|1⟩", ha='center', **font_props)
-    ax.text(0, 0, -1.2, "|0⟩", ha='center', **font_props)
+    ax.text(1.6, 0, 0, "X", ha='center', **font_props)  # Adjusted positions
+    ax.text(-1.6, 0, 0, "-X", ha='center', **font_props)
+    ax.text(0, 1.6, 0, "Y", ha='center', **font_props)
+    ax.text(0, -1.6, 0, "-Y", ha='center', **font_props)
+    ax.text(0, 0, 1.6, "|1>", ha='center', **font_props)
+    ax.text(0, 0, -1.6, "|0>", ha='center', **font_props)
 
     # Remove grid and set black background
     ax.grid(False)
@@ -90,11 +98,11 @@ def plotBlochSphere(theta, phi, ax):
 
 # Function to animate the vector evolution
 def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
-    fig = plt.figure(figsize=(10, 8))
-    fig.patch.set_facecolor('black')  # Set figure background to black
+    fig = plt.figure(figsize=(15, 8))  # Made figure wider
+    fig.patch.set_facecolor('black')
 
-    # Create main Bloch sphere plot
-    ax = fig.add_subplot(121, projection='3d')
+    # Create main Bloch sphere plot with more space
+    ax = fig.add_subplot(121, projection='3d', position=[0.1, 0.1, 0.5, 0.8])
 
     # Create text area for equations
     text_ax = fig.add_subplot(122)
@@ -138,7 +146,7 @@ def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
         beta = np.exp(1j * phi) * np.sin(theta / 2)
 
         # Update equations with modern formatting
-        state_text.set_text("Quantum State |ψ⟩:\n|ψ⟩ = α|0⟩ + β|1⟩")
+        state_text.set_text("Quantum State |ψ>:\n|ψ> = α|0> + β|1>")
 
         components_text.set_text(
             f"Components:\n"
@@ -308,12 +316,12 @@ def create_input_window():
     # Add information text with modern formatting
     info_text = """
     Common Quantum States (in radians):
-    |0⟩ : θ = 0,      φ = 0
-    |1⟩ : θ = π,      φ = 0
-    |+⟩ : θ = π/2,    φ = 0
-    |-⟩ : θ = π/2,    φ = π
-    |+i⟩: θ = π/2,    φ = π/2
-    |-i⟩: θ = π/2,    φ = 3π/2
+    |0> : θ = 0,      φ = 0
+    |1> : θ = π,      φ = 0
+    |+> : θ = π/2,    φ = 0
+    |-> : θ = π/2,    φ = π
+    |+i>: θ = π/2,    φ = π/2
+    |-i>: θ = π/2,    φ = 3π/2
     """
     ttk.Label(frame, text=info_text,
               justify=tk.LEFT,
@@ -355,10 +363,10 @@ def create_input_window():
 
     def show_preset():
         input_window.destroy()
-        # Preset example: rotate from |0⟩ to |1⟩
-        start_theta = 0  # |0⟩ state (north pole)
+        # Preset example: rotate from |0> to |1>
+        start_theta = 0  # |0> state (north pole)
         start_phi = 0
-        end_theta = np.pi  # |1⟩ state (south pole)
+        end_theta = np.pi  # |1> state (south pole)
         end_phi = 0
         evolve_between_points(start_theta, start_phi, end_theta, end_phi)
 
@@ -368,7 +376,7 @@ def create_input_window():
 
     # Add buttons
     ttk.Button(button_frame, text="Start Custom", command=start_visualization).pack(side=tk.LEFT, padx=5)
-    ttk.Button(button_frame, text="Show Preset (|0⟩ to |1⟩)", command=show_preset).pack(side=tk.LEFT, padx=5)
+    ttk.Button(button_frame, text="Show Preset (|0> to |1>)", command=show_preset).pack(side=tk.LEFT, padx=5)
 
     input_window.mainloop()
 
