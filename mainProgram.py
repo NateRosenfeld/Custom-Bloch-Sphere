@@ -2,6 +2,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation  # Ensure this line is included
 import numpy as np
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+
+
 
 
 # Define a basic quantum state |ψ(t)>
@@ -18,9 +23,15 @@ def hamiltonian():
     hamiltonian = np.array([[0, 1], [1, 0]])  # Pauli-X matrix
     return hamiltonian
 
+
 def plotBlochSphere(theta, phi, ax):
     ax.clear()
     ax.set_aspect('equal')
+
+    # ... (rest of the existing plotBlochSphere code) ...
+
+    # Adjust title position
+    ax.set_title("Bloch Sphere", pad=20)
 
     # Define the Bloch sphere surface
     u = np.linspace(0, 2 * np.pi, 100)
@@ -74,8 +85,14 @@ def plotBlochSphere(theta, phi, ax):
 
 # Function to animate the vector evolution
 def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
-    fig = plt.figure(figsize=(8, 8))
-    ax = fig.add_subplot(111, projection='3d')
+    fig = plt.figure(figsize=(10, 8))  # Made figure wider to accommodate text
+
+    # Create main Bloch sphere plot
+    ax = fig.add_subplot(121, projection='3d')  # 1x2 grid, first position
+
+    # Create text area for equations
+    text_ax = fig.add_subplot(122)  # 1x2 grid, second position
+    text_ax.axis('off')  # Hide axes
 
     # Generate intermediate angles for animation
     thetaValues = np.linspace(startTheta, endTheta, steps)
@@ -86,29 +103,64 @@ def animateBlochSphere(startTheta, startPhi, endTheta, endPhi, steps):
     init_azim = 45
     ax.view_init(elev=init_elev, azim=init_azim)
 
+    # Initialize text elements
+    state_text = text_ax.text(0.1, 0.7, '', fontsize=12)
+    components_text = text_ax.text(0.1, 0.5, '', fontsize=12)
+    angles_text = text_ax.text(0.1, 0.3, '', fontsize=12)
+
     def update(frame):
-        # Get current view angles before clearing
         elev = ax.elev
         azim = ax.azim
+        ax.cla()
 
-        ax.cla()  # Clear the axis
+        # Update Bloch sphere
         theta = thetaValues[frame]
         phi = phiValues[frame]
         plotBlochSphere(theta, phi, ax)
-
-        # Restore the view angle
         ax.view_init(elev=elev, azim=azim)
-        return ax.get_children()
+
+        # Calculate state components
+        alpha = np.cos(theta / 2)
+        beta = np.exp(1j * phi) * np.sin(theta / 2)
+
+        # Update equations
+        state_text.set_text(f"State Vector |ψ⟩:\n|ψ⟩ = α|0⟩ + β|1⟩")
+
+        components_text.set_text(
+            f"Components:\n"
+            f"α = {alpha:.3f}\n"
+            f"β = {beta:.3f}\n"
+            f"|α|² = {abs(alpha) ** 2:.3f}\n"
+            f"|β|² = {abs(beta) ** 2:.3f}"
+        )
+
+        angles_text.set_text(
+            f"Angles:\n"
+            f"θ = {theta:.3f} rad = {np.degrees(theta):.1f}°\n"
+            f"φ = {phi:.3f} rad = {np.degrees(phi):.1f}°"
+        )
+
+        return ax.get_children() + [state_text, components_text, angles_text]
 
     # Create animation
-    ani = animation.FuncAnimation(
+    anim = animation.FuncAnimation(
         fig,
         update,
         frames=steps,
         interval=50,
         repeat=True,
-        blit=False  # Important for interactive rotation
+        blit=False
     )
+
+    # Add stop button
+    stop_ax = plt.axes([0.81, 0.05, 0.1, 0.075])
+    stop_button = plt.Button(stop_ax, 'Stop')
+
+    def stop_animation(event):
+        anim.event_source.stop()
+        plt.close(fig)
+
+    stop_button.on_clicked(stop_animation)
 
     plt.show()
 
@@ -200,30 +252,76 @@ def get_user_input():
     return start_theta, start_phi, end_theta, end_phi
 
 
-if __name__ == "__main__":
-    print("Welcome to Bloch Sphere Evolution!")
-    print("\nSome common points:")
-    print("|0⟩ state: theta = 0, phi = 0")
-    print("|1⟩ state: theta = π, phi = 0")
-    print("|+⟩ state: theta = π/2, phi = 0")
-    print("|-⟩ state: theta = π/2, phi = π")
-    print("|+i⟩ state: theta = π/2, phi = π/2")
-    print("|-i⟩ state: theta = π/2, phi = 3π/2")
+def create_input_window():
+    input_window = tk.Tk()
+    input_window.title("Bloch Sphere Coordinates")
 
-    # Let user choose between manual input or preset example
-    choice = input("\nWould you like to (1) enter custom coordinates or (2) see a preset example? Enter 1 or 2: ")
+    # Create and pack a frame for better organization
+    frame = ttk.Frame(input_window, padding="10")
+    frame.pack(fill=tk.BOTH, expand=True)
 
-    if choice == "1":
+    # Add information text
+    info_text = """
+    Common points (in radians):
+    |0⟩ state: theta = 0, phi = 0
+    |1⟩ state: theta = π (3.14159), phi = 0
+    |+⟩ state: theta = π/2 (1.57079), phi = 0
+    |-⟩ state: theta = π/2 (1.57079), phi = π (3.14159)
+    |+i⟩ state: theta = π/2 (1.57079), phi = π/2 (1.57079)
+    |-i⟩ state: theta = π/2 (1.57079), phi = 3π/2 (4.71238)
+    """
+    ttk.Label(frame, text=info_text, justify=tk.LEFT).pack(pady=10)
+
+    # Create variables to store the input values
+    start_theta_var = tk.StringVar()
+    start_phi_var = tk.StringVar()
+    end_theta_var = tk.StringVar()
+    end_phi_var = tk.StringVar()
+
+    # Create input fields with labels
+    ttk.Label(frame, text="Starting theta (0 to π):").pack()
+    ttk.Entry(frame, textvariable=start_theta_var).pack(pady=5)
+
+    ttk.Label(frame, text="Starting phi (0 to 2π):").pack()
+    ttk.Entry(frame, textvariable=start_phi_var).pack(pady=5)
+
+    ttk.Label(frame, text="Ending theta (0 to π):").pack()
+    ttk.Entry(frame, textvariable=end_theta_var).pack(pady=5)
+
+    ttk.Label(frame, text="Ending phi (0 to 2π):").pack()
+    ttk.Entry(frame, textvariable=end_phi_var).pack(pady=5)
+
+    def start_visualization():
         try:
-            coords = get_user_input()
-            evolve_between_points(*coords)
-        except ValueError as e:
-            print("\nError: Please enter valid numbers.")
-    else:
+            start_theta = float(start_theta_var.get())
+            start_phi = float(start_phi_var.get())
+            end_theta = float(end_theta_var.get())
+            end_phi = float(end_phi_var.get())
+
+            input_window.destroy()
+            evolve_between_points(start_theta, start_phi, end_theta, end_phi)
+        except ValueError:
+            tk.messagebox.showerror("Error", "Please enter valid numbers")
+
+    def show_preset():
+        input_window.destroy()
         # Preset example: rotate from |0⟩ to |1⟩
-        print("\nShowing preset example: |0⟩ to |1⟩")
         start_theta = 0  # |0⟩ state (north pole)
         start_phi = 0
         end_theta = np.pi  # |1⟩ state (south pole)
         end_phi = 0
         evolve_between_points(start_theta, start_phi, end_theta, end_phi)
+
+    # Create buttons frame
+    button_frame = ttk.Frame(frame)
+    button_frame.pack(pady=10)
+
+    # Add buttons
+    ttk.Button(button_frame, text="Start Custom", command=start_visualization).pack(side=tk.LEFT, padx=5)
+    ttk.Button(button_frame, text="Show Preset (|0⟩ to |1⟩)", command=show_preset).pack(side=tk.LEFT, padx=5)
+
+    input_window.mainloop()
+
+
+if __name__ == "__main__":
+    create_input_window()
