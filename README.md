@@ -8,4 +8,10 @@ This program is intended to be a more user-friendly and accurate representation 
 
 ---
 
-Have a lovely day!
+Have a lovely day! (っ◕‿◕)っ |Ψ⟩ = α|u1⟩ + β|u2⟩
+
+---
+
+![alt text](https://github.com/NateRosenfeld/Custom-Bloch-Sphere/blob/main/repoDemoCBS)
+
+
